@@ -6,7 +6,7 @@ DOCKER_TAG = "v.${BUILD_ID}.0" // we will tag our images with the current build 
 }
 agent any // Jenkins will be able to select all available agents
 stages {
-        stage(' Docker Build'){ // docker build image stage
+        stage('Docker Build'){ // docker build image stage
             steps {
                 script {
                 sh '''
@@ -21,7 +21,7 @@ stages {
                 steps {
                     script {
                     sh '''
-                    docker run -d -p 81:80 --name jenkins $DOCKER_ID/$DOCKER_IMAGE:$DOCKER_TAG
+                    docker run -d -p 80:80 --name jenkins $DOCKER_ID/$DOCKER_IMAGE:$DOCKER_TAG
                     sleep 10
                     '''
                     }
@@ -123,8 +123,16 @@ stage('Deploiement en staging'){
                 '''
                 }
             }
-
         }
-
+}
+post { // send email when the job has failed
+    // ..
+    failure {
+        echo "This will run if the job failed"
+        mail to: "tristan.greffe@gmail.com",
+             subject: "${env.JOB_NAME} - Build # ${env.BUILD_ID} has failed",
+             body: "For more info on the pipeline failure, check out the console output at ${env.BUILD_URL}"
+    }
+    // ..
 }
 }
